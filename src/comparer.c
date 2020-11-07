@@ -32,7 +32,6 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
         if (image1->header.height * image2->header.height > 0) {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    //printf("%u %u\n", image1->data[y * width + x], image2->data[y * width + x]);
                     if (image1->data[y * width + x] != image2->data[y * width + x]) {
                         error("%d %d\n", x, y);
                         count_diff++;
@@ -45,7 +44,6 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
         } else {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    //printf("%u %u\n", image1->data[y * width + x], image2->data[y * width + x]);
                     if (image1->data[(height - y - 1) * width + x] != image2->data[y * width + x]) {
                         error("%d %d\n", x, y);
                         count_diff++;
@@ -60,7 +58,7 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
         if (image1->header.height * image2->header.height > 0) {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    //printf("%u %u\n", image1->data[y * width + x], image2->data[y * width + x]);
+                    //checking red, green, blue values
                     if (image1->data[3 * (y * width + x)] != image2->data[3 * (y * width + x)] ||
                         image1->data[3 * (y * width + x) + 1] != image2->data[3 * (y * width + x) + 1] ||
                         image1->data[3 * (y * width + x) + 2] != image2->data[3 * (y * width + x) + 2]) {
@@ -75,7 +73,7 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
         } else {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    //printf("%u %u\n", image1->data[y * width + x], image2->data[y * width + x]);
+                    //checking red, green, blue values
                     if (image1->data[3 * ((height - y - 1) * width + x)] != image2->data[3 * (y * width + x)] ||
                         image1->data[3 * ((height - y - 1) * width + x) + 1] != image2->data[3 * (y * width + x) + 1] ||
                         image1->data[3 * ((height - y - 1) * width + x) + 2] != image2->data[3 * (y * width + x) + 2]) {
