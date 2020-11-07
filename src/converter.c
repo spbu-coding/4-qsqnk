@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "bmp_handler.h"
 #include "qdbmp.h"
 
@@ -7,12 +8,13 @@
 #define error(...) (fprintf(stderr, __VA_ARGS__))
 #define BYTES_COUNT_IN_PIXEL 3
 #define PALETTE_SIZE_8bbp (256 * 4)
+#define MAX_FILENAME_SIZE 255
 
 int is_filename_incorrect(char* filename, char* key) {
     unsigned int filename_length = strlen(filename);
     unsigned int key_length = strlen(key);
     for (int i = 0; i < key_length; i++) {
-        if (filename[filename_length - key_length + i] != key[i]) {
+        if (tolower(filename[filename_length - key_length + i]) != key[i]) {
             return 1;
         }
     }
@@ -30,10 +32,6 @@ int scan_arguments(int count_of_arguments, char** arguments, REALIZATION_TYPE* r
         error("%s", "Count of arguments must be 3");
         return 1;
     }
-    if (is_filename_incorrect(input_filename, ".bmp") || is_filename_incorrect(output_filename, ".bmp")) {
-        error("%s", "File must be in bmp format");
-        return 1;
-    }
     if (strcmp(arguments[1], "--mine") == 0) {
         *realization = MINE;
     } else if (strcmp(arguments[1], "--theirs") == 0) {
@@ -44,13 +42,17 @@ int scan_arguments(int count_of_arguments, char** arguments, REALIZATION_TYPE* r
     }
     strcpy(input_filename, arguments[2]);
     strcpy(output_filename, arguments[3]);
+    if (is_filename_incorrect(input_filename, ".bmp") || is_filename_incorrect(output_filename, ".bmp")) {
+        error("%s", "File must be in bmp format");
+        return 1;
+    }
     return 0;
 }
 
 int main(int argc, char* argv[]) {
     REALIZATION_TYPE realization;
-    char* input_filename;
-    char* output_filename;
+    char input_filename[MAX_FILENAME_SIZE];
+    char output_filename[MAX_FILENAME_SIZE];
     if (scan_arguments(argc, argv, &realization, input_filename, output_filename)) {
         return -1;
     }
