@@ -24,7 +24,7 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
     int bits_per_pixel = image1->header.bits_per_pixel;
     int count_diff = 0;
     int heights_prod = image1->header.height * image2->header.height;
-    int index = 0;
+    int index_1, index_2 = 0;
     if (bits_per_pixel == 8) {
         for (int i = 0; i < BMP_PALETTE_SIZE_8bpp; i++) {
             if (image1->palette[i] != image2->palette[i]) {
@@ -36,9 +36,10 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             for (int i = 0; i < bits_per_pixel / 8; i++) {
-                if (heights_prod > 0) index = (bits_per_pixel / 8) * (y * width + x) + i;
-                else index = (bits_per_pixel / 8) * ((height - y - 1) * width + x) + i;
-                if (image1->data[index] != image2->data[index]) {
+                index_2 = (bits_per_pixel / 8) * (y * width + x) + i;
+                if (heights_prod > 0) index_1 = index_2;
+                else index_1 = (bits_per_pixel / 8) * ((height - y - 1) * width + x) + i;
+                if (image1->data[index_1] != image2->data[index_2]) {
                     error("%d %d\n", x, y);
                     count_diff++;
                     if (count_diff == MAX_DIFF_PIXELS_COUNT) {
