@@ -7,6 +7,7 @@
 #define error(...) (fprintf(stderr, __VA_ARGS__))
 #define BYTES_COUNT_IN_PIXEL 3
 #define MAX_FILENAME_SIZE 255
+#define MAX_DIFF_PIXELS_COUNT 100
 #define BMP_PALETTE_SIZE_8bpp (256 * 4)
 
 int compare_images(BMPv3* image1, BMPv3* image2) {
@@ -22,6 +23,8 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
     int height = abs(image1->header.height);
     int bits_per_pixel = image1->header.bits_per_pixel;
     int count_diff = 0;
+    int heights_prod = image1->header.height * image2->header.height;
+    int index = 0;
     if (bits_per_pixel == 8) {
         for (int i = 0; i < BMP_PALETTE_SIZE_8bpp; i++) {
             if (image1->palette[i] != image2->palette[i]) {
@@ -29,64 +32,22 @@ int compare_images(BMPv3* image1, BMPv3* image2) {
                 return 0;
             }
         }
-        if (image1->header.height * image2->header.height > 0) {
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (image1->data[y * width + x] != image2->data[y * width + x]) {
-                        error("%d %d\n", x, y);
-                        count_diff++;
-                    }
-                    if (count_diff == 100) {
+    }
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            for (int i = 0; i < bits_per_pixel / 8; i++) {
+                if (heights_prod > 0) index = (bits_per_pixel / 8) * (y * width + x) + i;
+                else index = (bits_per_pixel / 8) * ((height - y - 1) * width + x) + i;
+                if (image1->data[index] != image2->data[index]) {
+                    error("%d %d\n", x, y);
+                    count_diff++;
+                    if (count_diff == MAX_DIFF_PIXELS_COUNT) {
                         return 0;
                     }
-                }
-            }
-        } else {
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (image1->data[(height - y - 1) * width + x] != image2->data[y * width + x]) {
-                        error("%d %d\n", x, y);
-                        count_diff++;
-                    }
-                    if (count_diff == 100) {
-                        return 0;
-                    }
+                    break;
                 }
             }
         }
-    } else if (bits_per_pixel == 24) {
-        if (image1->header.height * image2->header.height > 0) {
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    //checking red, green, blue values
-                    if (image1->data[3 * (y * width + x)] != image2->data[3 * (y * width + x)] ||
-                        image1->data[3 * (y * width + x) + 1] != image2->data[3 * (y * width + x) + 1] ||
-                        image1->data[3 * (y * width + x) + 2] != image2->data[3 * (y * width + x) + 2]) {
-                        error("%d %d\n", x, y);
-                        count_diff++;
-                    }
-                    if (count_diff == 100) {
-                        return 0;
-                    }
-                }
-            }
-        } else {
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    //checking red, green, blue values
-                    if (image1->data[3 * ((height - y - 1) * width + x)] != image2->data[3 * (y * width + x)] ||
-                        image1->data[3 * ((height - y - 1) * width + x) + 1] != image2->data[3 * (y * width + x) + 1] ||
-                        image1->data[3 * ((height - y - 1) * width + x) + 2] != image2->data[3 * (y * width + x) + 2]) {
-                        error("%d %d\n", x, height - y - 1);
-                        count_diff++;
-                    }
-                    if (count_diff == 100) {
-                        return 0;
-                    }
-                }
-            }
-        }
-
     }
     return 0;
 }
